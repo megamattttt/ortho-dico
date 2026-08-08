@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2E6F6A">
+<title>OrthoDico — dictionnaire pour orthophoniste</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <button class="home-btn" id="btn-accueil" type="button" aria-label="Retour à l'accueil">
+    <span aria-hidden="true">⌂</span> Accueil
+  </button>
+  <nav class="breadcrumb" id="breadcrumb" aria-label="Fil d'ariane"></nav>
+</header>
+
+<main id="app"></main>
+
+<script src="data.js"></script>
+<script src="images.js"></script>
+<script src="quiz.js"></script>
+<script src="app.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('service-worker.js').catch(function () {});
+  });
+}
+</script>
+</body>
+</html>

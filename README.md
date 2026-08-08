@@ -28,52 +28,6 @@ Aucun framework, aucune étape de build : HTML / CSS / JavaScript vanilla.
 | `service-worker.js` | Cache de l'app shell (les images restent chargées en direct) |
 | `icons/` | Icônes de l'application |
 
-## Lancer en local
-
-Ouvrir `index.html` suffit pour tester. Pour que le service worker et l'installation PWA fonctionnent, servir les fichiers via un petit serveur :
-
-```bash
-python3 -m http.server 8000
-# puis ouvrir http://localhost:8000
-```
-
-## Déployer sur GitHub Pages
-
-### 1. Créer le dépôt
-
-Sur [github.com](https://github.com) → bouton **+** en haut à droite → **New repository**.
-Nom au choix (ex. `vocabulaire`), visibilité **Public** (obligatoire pour Pages sur un compte gratuit), **sans** README ni .gitignore. **Create repository**.
-
-### 2. Envoyer les fichiers
-
-Le plus simple, sans ligne de commande : sur la page du dépôt vide, cliquer **uploading an existing file**, puis glisser **tout le contenu du projet** — `index.html`, `style.css`, `data.js`, `images.js`, `quiz.js`, `app.js`, `manifest.json`, `service-worker.js` et le dossier `icons/`. Les fichiers doivent être **à la racine** du dépôt, pas dans un sous-dossier. Puis **Commit changes**.
-
-En ligne de commande, depuis le dossier du projet :
-
-```bash
-git init
-git add .
-git commit -m "Bibliotheque de vocabulaire"
-git branch -M main
-git remote add origin https://github.com/<votre-compte>/<nom-du-depot>.git
-git push -u origin main
-```
-
-### 3. Activer GitHub Pages
-
-**Settings** → **Pages** → section *Build and deployment* → *Source* : **Deploy from a branch** → branche `main`, dossier `/ (root)` → **Save**.
-
-### 4. Ouvrir le site
-
-Après une à deux minutes, l'adresse s'affiche en haut de la page Pages :
-`https://<votre-compte>.github.io/<nom-du-depot>/`
-
-Sur mobile ou tablette, ouvrir cette adresse puis « Ajouter à l'écran d'accueil » pour installer l'application.
-
-### 5. Mettre à jour plus tard
-
-Remplacer le fichier modifié (sur GitHub : ouvrir le fichier → crayon ✏️ → **Commit changes**, ou `git push`). Pensez à incrémenter `CACHE` dans `service-worker.js` (`vocab-shell-v2` → `v3`) pour que les appareils déjà installés reçoivent la nouvelle version.
-
 ## Images et licences
 
 Trois sources de visuels, dans cet ordre de priorité :

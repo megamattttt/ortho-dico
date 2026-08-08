@@ -1,3 +1,6 @@
+<img width="2000" height="800" alt="LOGO ORTHO DICO GH" src="https://github.com/user-attachments/assets/0d57a302-0483-4f15-8297-e2f3e7529c22" />
+
+
 # OrthoDico — dictionnaire pour orthophoniste (PWA)
 
 Outil de séance pour orthophoniste : bibliothèque d'images de vocabulaire par catégories, avec un **mode cartes** (nom caché / révélé) et deux **modes quizz** (par catégorie et alphabet A→Z).
@@ -37,43 +40,6 @@ python3 -m http.server 8000
 # puis ouvrir http://localhost:8000
 ```
 
-## Déployer sur GitHub Pages
-
-### 1. Créer le dépôt
-
-Sur [github.com](https://github.com) → bouton **+** en haut à droite → **New repository**.
-Nom au choix (ex. `vocabulaire`), visibilité **Public** (obligatoire pour Pages sur un compte gratuit), **sans** README ni .gitignore. **Create repository**.
-
-### 2. Envoyer les fichiers
-
-Le plus simple, sans ligne de commande : sur la page du dépôt vide, cliquer **uploading an existing file**, puis glisser **tout le contenu du projet** — `index.html`, `style.css`, `data.js`, `images.js`, `quiz.js`, `app.js`, `manifest.json`, `service-worker.js` et le dossier `icons/`. Les fichiers doivent être **à la racine** du dépôt, pas dans un sous-dossier. Puis **Commit changes**.
-
-En ligne de commande, depuis le dossier du projet :
-
-```bash
-git init
-git add .
-git commit -m "Bibliotheque de vocabulaire"
-git branch -M main
-git remote add origin https://github.com/<votre-compte>/<nom-du-depot>.git
-git push -u origin main
-```
-
-### 3. Activer GitHub Pages
-
-**Settings** → **Pages** → section *Build and deployment* → *Source* : **Deploy from a branch** → branche `main`, dossier `/ (root)` → **Save**.
-
-### 4. Ouvrir le site
-
-Après une à deux minutes, l'adresse s'affiche en haut de la page Pages :
-`https://<votre-compte>.github.io/<nom-du-depot>/`
-
-Sur mobile ou tablette, ouvrir cette adresse puis « Ajouter à l'écran d'accueil » pour installer l'application.
-
-### 5. Mettre à jour plus tard
-
-Remplacer le fichier modifié (sur GitHub : ouvrir le fichier → crayon ✏️ → **Commit changes**, ou `git push`). Pensez à incrémenter `CACHE` dans `service-worker.js` (`vocab-shell-v2` → `v3`) pour que les appareils déjà installés reçoivent la nouvelle version.
-
 ## Images et licences
 
 Trois sources de visuels, dans cet ordre de priorité :
@@ -81,6 +47,7 @@ Trois sources de visuels, dans cet ordre de priorité :
 1. **`imageOverride`** — une URL que vous fixez vous-même dans `data.js` (voir ci-dessous).
 2. **Drapeaux officiels** — catégorie *Pays*, servis par [FlagCDN](https://flagcdn.com/) d'après le code ISO à 2 lettres (`iso: 'fr'` → `https://flagcdn.com/w320/fr.png`). Libre d'usage, aucune attribution requise.
 3. **[API Openverse](https://api.openverse.org/)** — pour tout le reste, filtrée sur les licences autorisant l'usage commercial et la modification. Chaque image affiche discrètement, en coin, le nom de son auteur, la licence et un lien vers la page d'origine, conformément aux obligations Creative Commons.
+4. Wikimedia Commons - Pour les images corrigées
 
 Les couleurs, elles, sont rendues en aplat CSS et ne déclenchent aucun appel réseau.
 

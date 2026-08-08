@@ -137,7 +137,11 @@ function allerAccueil() {
   vider();
   majFilAriane([{ nom: 'Accueil' }]);
 
-  app.appendChild(h('h1', {}, ['OrthoDico']));
+  const bloc = h('div', { class: 'brand-home' }, []);
+  const logo = document.createElement('img');
+  logo.src = 'logo.png'; logo.alt = 'OrthoDico'; logo.className = 'brand-logo';
+  bloc.appendChild(logo);
+  app.appendChild(bloc);
   app.appendChild(h('p', { class: 'sub' }, [
     tousLesElements().length + ' mots · cherchez, écoutez, jouez.'
   ]));

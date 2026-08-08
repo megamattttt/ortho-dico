@@ -1,3 +1,6 @@
+<img width="2000" height="800" alt="LOGO ORTHO DICO GH" src="https://github.com/user-attachments/assets/4ac68a84-ccd0-4834-b3e5-feacab9572f6" />
+
+
 # OrthoDico — dictionnaire pour orthophoniste (PWA)
 
 Outil de séance pour orthophoniste : bibliothèque d'images de vocabulaire par catégories, avec un **mode cartes** (nom caché / révélé) et deux **modes quizz** (par catégorie et alphabet A→Z).

@@ -7,6 +7,18 @@ const OV_PREFIX = 'ov:';
 const OV_ENDPOINT = 'https://api.openverse.org/v1/images/';
 const FLAG_BASE = 'https://flagcdn.com/w320/';
 const enCours = new Map(); // évite les appels concurrents en double
+const DELAI_API = 6000;   // ms avant d'abandonner l'appel à l'API Openverse
+const DELAI_IMG = 5000;   // ms avant d'abandonner le test de chargement d'une image
+
+/* fetch() avec un délai maximum : sur une connexion instable, une requête peut
+   rester "en attente" très longtemps sans jamais échouer ni réussir. On force
+   un abandon après DELAI ms pour basculer plus vite sur le placeholder. */
+function fetchAvecDelai(url, options, delai) {
+  const controleur = new AbortController();
+  const minuteur = setTimeout(function () { controleur.abort(); }, delai);
+  return fetch(url, Object.assign({}, options, { signal: controleur.signal }))
+    .finally(function () { clearTimeout(minuteur); });
+}
 
 function ovLire(mot) {
   try {
@@ -29,7 +41,7 @@ function chercherImage(mot) {
     + '?q=' + encodeURIComponent(mot)
     + '&license_type=commercial,modification&page_size=5';
 
-  const p = fetch(url, { headers: { Accept: 'application/json' } })
+  const p = fetchAvecDelai(url, { headers: { Accept: 'application/json' } }, DELAI_API)
     .then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
@@ -40,8 +52,11 @@ function chercherImage(mot) {
       let res;
       if (trouve) {
         res = {
-          url: trouve.url || trouve.thumbnail,
-          miniature: trouve.thumbnail || trouve.url,
+          // La miniature est bien plus légère que la photo en pleine résolution :
+          // on l'affiche en priorité, la version complète ne sert que de secours.
+          url: trouve.thumbnail || trouve.url,
+          secours: trouve.url || trouve.thumbnail,
+
           auteur: trouve.creator || 'Auteur inconnu',
           lien: trouve.foreign_landing_url || trouve.url,
           licence: (trouve.license || '').toUpperCase() + (trouve.license_version ? ' ' + trouve.license_version : '')
@@ -73,14 +88,21 @@ function placeholderSVG(nom) {
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
 
-/* Charge une URL et résout true/false selon la réussite. */
+/* Charge une URL et résout true/false selon la réussite (avec délai maximum). */
 function testerImage(url) {
   return new Promise(function (resolve) {
+    let fini = false;
+    const regler = function (ok) {
+      if (fini) return;
+      fini = true;
+      resolve(ok);
+    };
     const t = new Image();
     t.referrerPolicy = 'no-referrer';
-    t.onload = function () { resolve(true); };
-    t.onerror = function () { resolve(false); };
+    t.onload = function () { regler(true); };
+    t.onerror = function () { regler(false); };
     t.src = url;
+    setTimeout(function () { regler(false); }, DELAI_IMG);
   });
 }
 
@@ -91,7 +113,7 @@ function netToyer(conteneur) {
   });
 }
 
-function afficherImage(conteneur, src, classe) {
+function afficherImage(conteneur, src, classe, secours) {
   netToyer(conteneur);
   const img = document.createElement('img');
   img.alt = '';
@@ -100,6 +122,14 @@ function afficherImage(conteneur, src, classe) {
   img.referrerPolicy = 'no-referrer';
   if (classe) img.className = classe;
   img.src = src;
+  // Filet de sécurité : si le chargement échoue (réseau mobile, hôte qui bloque, etc.),
+  // on bascule sur le placeholder au lieu de laisser l'icône "image cassée" du navigateur.
+  if (secours) {
+    img.onerror = function () {
+      img.onerror = null;
+      img.src = secours;
+    };
+  }
   conteneur.appendChild(img);
   return img;
 }
@@ -138,7 +168,7 @@ function peuplerMedia(conteneur, element, options) {
   // 2. Correction manuelle : URL fournie dans data.js (jamais mise en cache)
   const depart = element.imageOverride
     ? testerImage(element.imageOverride).then(function (ok) {
-        if (ok) { afficherImage(conteneur, element.imageOverride, 'contain'); return true; }
+        if (ok) { afficherImage(conteneur, element.imageOverride, 'contain', placeholderSVG(element.nom)); return true; }
         return false;
       })
     : Promise.resolve(false);
@@ -150,7 +180,7 @@ function peuplerMedia(conteneur, element, options) {
     if (element.iso) {
       const url = FLAG_BASE + element.iso + '.png';
       return testerImage(url).then(function (ok) {
-        afficherImage(conteneur, ok ? url : placeholderSVG(element.nom), 'contain drapeau');
+        afficherImage(conteneur, ok ? url : placeholderSVG(element.nom), 'contain drapeau', placeholderSVG(element.nom));
       });
     }
 
@@ -160,9 +190,13 @@ function peuplerMedia(conteneur, element, options) {
       return;
     }
     return chercherImage(element.mot).then(function (res) {
-      const img = afficherImage(conteneur, res.vide ? placeholderSVG(element.nom) : res.url);
+      const img = afficherImage(conteneur, res.vide ? placeholderSVG(element.nom) : res.url, null, placeholderSVG(element.nom));
       img.onerror = function () {
-        if (!res.vide && res.miniature && img.src !== res.miniature) { img.src = res.miniature; return; }
+        if (!res.vide && res.secours && img.src !== res.secours) {
+          img.src = res.secours;
+          img.onerror = function () { img.onerror = null; img.src = placeholderSVG(element.nom); };
+          return;
+        }
         img.onerror = null;
         img.src = placeholderSVG(element.nom);
       };
